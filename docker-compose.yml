@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  data:
+    image: postgres:latest
+    hostname: postgres-data
+    restart: always
+    environment :
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=ismael
+      - POSTGRES_PASSWORD=123456
+
+    ports:
+      - "5437:5432"
+
