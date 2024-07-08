@@ -1,6 +1,7 @@
 import { Response, Request } from "express"
-import { UserCreateUserDto, UserUpdateDto } from "../../domain"
+import { CustomError, UserCreateUserDto, UserUpdateDto } from "../../domain"
 import { UserServices } from "./users.services";
+import { send } from "process";
 
 export class UserController {
     
@@ -13,11 +14,11 @@ export class UserController {
      * @param error 
      * @returns 
      */
-    private getErrorMessage(error:unknown):string{
-        if(error instanceof Error){
-            return error.message
+    private getErrorMessage =(error:unknown, res:Response)=>{
+        if(error instanceof CustomError){
+            return res.status(error.statusCode).json({message:  error.message});
         };
-        return String(error)
+        return res.status(500).json({message: 'Something went very wrong! 🧨'});
     };
 
     createUser = (req:Request, res:Response)=>{
@@ -27,13 +28,13 @@ export class UserController {
 
         this.userServices.create(createUserDto!)
             .then(user => res.status(201).json(user))
-            .catch((error: unknown) => res.status(400).json({messages : this.getErrorMessage(error)}));
+            .catch((error: unknown) => this.getErrorMessage(error, res));
     };
 
     getAllUsers = (_:Request, res: Response)=>{
         this.userServices.findAllUsers()
             .then(user=> res.status(200).json(user))
-            .catch((error:unknown) => res.status(500).json({message : this.getErrorMessage(error)}));
+            .catch((error: unknown) => this.getErrorMessage(error, res));
     };
 
     getUserById = (req:Request, res :Response)=>{
@@ -43,7 +44,7 @@ export class UserController {
 
         this.userServices.findUserById(+id)
             .then(user=> res.status(201).json(user))
-            .catch((error:unknown)=> res.status(500).json({message :  this.getErrorMessage(error)}))
+            .catch((error: unknown) => this.getErrorMessage(error, res));
     };
 
     updateUserById = (req:Request, res :Response)=>{
@@ -56,7 +57,7 @@ export class UserController {
 
         this.userServices.updateUserById(+id, updateUserDto!)
             .then(updateUser=> res.status(200).json(updateUser))
-            .catch((error: unknown)=> res.status(400).json({messages : this.getErrorMessage(error)}));
+            .catch((error: unknown) => this.getErrorMessage(error, res));
     };
 
     deleteUserById=(req:Request, res:Response)=>{
@@ -66,7 +67,7 @@ export class UserController {
 
         this.userServices.deleteUserById(+id)
             .then(userDelete => res.status(200).json(userDelete))
-            .catch((error:unknown)=> res.status(500).json({message : this.getErrorMessage(error)}));
+            .catch((error: unknown) => this.getErrorMessage(error, res));
 
         
     };
