@@ -1,5 +1,5 @@
 import { User } from "../../data";
-import { UserCreateUserDto, UserUpdateDto } from "../../domain";
+import { CustomError, UserCreateUserDto, UserUpdateDto } from "../../domain";
 
 enum Status {
     ACTIVE = 'ACTIVE',
@@ -15,22 +15,24 @@ export class UserServices {
         user.email =  userData.email.toLowerCase().trim();
         user.name =  userData.name.toLowerCase().trim();
         user.password = userData.password;
-        // user.role = userData.role.toUpperCase().trim();
+        if(user.role) {
+            user.role = userData.role.toUpperCase().trim();
+        };
 
         return await User.findOne({
             where : {
-                email : user.email
+                email : user.email,
+                status :  Status.ACTIVE,
             }
         })
             .then(repetEmail => {
                 if (repetEmail) {
-                    return Promise.reject(new Error("Email already registered."));
+                    return Promise.reject(CustomError.badRequest("Email already registered."));
                 };
                 return user.save();
             })
-            .then(user => user)
+            .then(savedUser => savedUser)
             .catch(error => {
-                    console.error('Error saving user:', error);
                     return Promise.reject(error);
             });
     };
