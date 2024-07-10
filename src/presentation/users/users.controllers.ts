@@ -1,5 +1,5 @@
 import { Response, Request } from "express"
-import { CustomError, UserCreateUserDto, UserUpdateDto } from "../../domain"
+import { CustomError, UserCreateUserDto, UserLoginDto, UserUpdateDto } from "../../domain"
 import { UserServices } from "./users.services";
 import { send } from "process";
 
@@ -24,11 +24,26 @@ export class UserController {
     createUser = (req:Request, res:Response)=>{
         const [error, createUserDto] = UserCreateUserDto.create(req.body);
 
-        if(error) return res.status(402).json(error);
+        if(error) return res.status(422).json(error);
 
         this.userServices.create(createUserDto!)
-            .then(user => res.status(201).json(user))
+            .then(user => res.status(200).json(user))
             .catch((error: unknown) => this.getErrorMessage(error, res));
+    };
+
+    loginUser =(req:Request, res:Response)=>{
+        const [error, loginUserDto] = UserLoginDto.login(req.body);
+        
+        if(error) return res.status(422).json(error);
+
+
+    };  
+
+    validateEmail =(req:Request, res:Response)=>{
+        const {token} =  req.params;
+        this.userServices.validateEmail(token)
+            .then(()=> res.json("Email validated preporty"))
+            .catch(err=>this.getErrorMessage(err, res));
     };
 
     getAllUsers = (_:Request, res: Response)=>{
@@ -68,7 +83,7 @@ export class UserController {
         this.userServices.deleteUserById(+id)
             .then(userDelete => res.status(200).json(userDelete))
             .catch((error: unknown) => this.getErrorMessage(error, res));
-
-        
     };
+
+
 };

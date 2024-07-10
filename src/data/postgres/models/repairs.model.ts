@@ -15,13 +15,26 @@ export class Repairs extends BaseEntity {
     @Column()
     user_id  : number;
 
-
     @Column({
         type : "varchar",
         length  : 60,
         nullable :  false, 
     })
     date :  Date | string;
+
+    @Column({
+        type :"varchar",
+        length : 60,
+        nullable : false
+    })
+    motorNumber :string;
+
+    @Column({
+        type :"varchar",
+        length : 200,
+        nullable : false
+    })
+    description: string;
 
 
     @Column({

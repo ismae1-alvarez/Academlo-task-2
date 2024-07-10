@@ -1,4 +1,5 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { bcryptAdapter } from "../../../config";
 
 
 
@@ -15,6 +16,12 @@ enum Role {
 
 @Entity()
 export class User extends BaseEntity {
+
+    // constructor(password?:string){
+    //     super();
+    //     this.password? =  password
+    // };
+
     @PrimaryGeneratedColumn()
     id :  number;
 
@@ -23,7 +30,7 @@ export class User extends BaseEntity {
         length : 60,
         nullable : false,
     })
-    name : string
+    name : string;
 
     @Column({
         type :  "varchar",
@@ -60,4 +67,17 @@ export class User extends BaseEntity {
 
     @UpdateDateColumn()
     update_at : Date;
-}
+
+    @Column({
+        type : "boolean",
+        default :false
+    })
+    emailValidate :  boolean;
+
+    @BeforeInsert()
+    encryptPassword(){
+        this.password =  bcryptAdapter.hash(this.password)
+    };
+
+    
+};
