@@ -46,7 +46,7 @@ export class AuthMiddleware {
 
     
 
-    static restricTo = (...roles: any) => {
+    static restrictedAccess = (...roles: any) => {
         return (req: Request, res: Response, next: NextFunction) => {
           if (!roles.includes(req.body.sessionUser.role)) {
             return res

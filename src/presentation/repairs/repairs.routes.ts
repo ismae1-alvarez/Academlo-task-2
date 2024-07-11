@@ -28,7 +28,7 @@ export class RepairsRoutes {
 
         // Middleware
         router.use(AuthMiddleware.protect);
-        router.use(AuthMiddleware.restricTo(Role.EMPLOYEE));
+        router.use(AuthMiddleware.restrictedAccess(Role.EMPLOYEE));
 
         // Rotas portegidas
         router.get("/", controller.getAllRepairs);
