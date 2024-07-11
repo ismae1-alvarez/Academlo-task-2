@@ -1,5 +1,6 @@
 import { Repairs } from "../../data";
-import { RepairsCreateDto, RepairsUpadateDto } from "../../domain";
+import { CustomError, RepairsCreateDto, RepairsUpadateDto } from "../../domain";
+import { UserServices } from "../users/users.services";
 
 enum Status {
     PENDING = "PENDING",
@@ -8,18 +9,35 @@ enum Status {
 };
 
 export class RepairsServices {
-    constructor(){};
+    constructor(
+        private readonly userServices : UserServices 
+    ){};
 
 
     async create(repairsData:RepairsCreateDto){
         const repairs = new Repairs();
+         await this.userServices.findUserById(repairsData.user_id);
+        
 
         repairs.user_id =  repairsData.user_id;
         repairs.date =  repairsData.date;
+        repairs.description =  repairsData.description;
+        repairs.motor_number =  repairsData.motor_number;
 
-        return await repairs.save()
-            .then(repairs => repairs)
-            .catch(err =>  Promise.reject(err))
+        return await Repairs.findOne({
+            where: {
+                motor_number :  repairs.motor_number
+            }
+        })
+            .then(motor  => {
+                if(motor) return Promise.reject(CustomError.badRequest("Motor number alredy eisting"));
+
+                return repairs.save();
+            })
+            .then((motor) => motor)
+            .catch((error) => {
+                return Promise.reject(error);
+            });
     };
 
     async getAllRepairs(){

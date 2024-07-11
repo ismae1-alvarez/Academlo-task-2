@@ -3,6 +3,7 @@ import { UserController } from "./users.controllers";
 import { UserServices } from "./users.services";
 import { EmailService } from "./email.service";
 import { envs } from "../../config";
+import { AuthMiddleware } from "../middleware/auth.middleware";
 
 export class UsersRoutes {
     static get routes ():Router{
@@ -15,17 +16,24 @@ export class UsersRoutes {
             envs.SEND_EMAIL
         );
         const services =  new UserServices(emailServices);
-
         const controller = new UserController(services)
 
+
+
+        //Login
+        router.post("/login", controller.loginUser);
+        
+        // Validate Login
+        router.get("/validate-email/:token", controller.validateEmail);
+        
+        router.use(AuthMiddleware.protect)
+        
         router.get("/", controller.getAllUsers);
         router.get("/:id", controller.getUserById);
         router.post("/", controller.createUser);
         router.patch("/:id", controller.updateUserById);
         router.delete("/:id", controller.deleteUserById);
-        router.post("/login", controller.loginUser)
-        // login
-        router.get("/validate-email/:token", controller.validateEmail);
+
 
 
         return router;

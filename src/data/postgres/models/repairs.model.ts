@@ -25,9 +25,10 @@ export class Repairs extends BaseEntity {
     @Column({
         type :"varchar",
         length : 60,
-        nullable : false
+        nullable : false,
+        unique: true
     })
-    motorNumber :string;
+    motor_number :string;
 
     @Column({
         type :"varchar",

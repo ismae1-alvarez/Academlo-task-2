@@ -9,11 +9,6 @@ export class UserController {
         public readonly userServices :  UserServices
     ){};
 
-    /**
-     * Tenes que resolver esto
-     * @param error 
-     * @returns 
-     */
     private getErrorMessage =(error:unknown, res:Response)=>{
         if(error instanceof CustomError){
             return res.status(error.statusCode).json({message:  error.message});
@@ -36,6 +31,9 @@ export class UserController {
         
         if(error) return res.status(422).json(error);
 
+        this.userServices.loginUser(loginUserDto!)
+            .then(user => res.status(200).json(user))
+            .catch(error => this.getErrorMessage(error, res))
 
     };  
 

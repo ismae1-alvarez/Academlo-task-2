@@ -1,6 +1,6 @@
 import { bcryptAdapter, envs, JwtAdapter } from "../../config";
 import { User } from "../../data";
-import { CustomError, UserCreateUserDto, UserUpdateDto } from "../../domain";
+import { CustomError, UserCreateUserDto, UserLoginDto, UserUpdateDto } from "../../domain";
 import { EmailService } from "./email.service";
 
 enum Status {
@@ -12,13 +12,13 @@ export class UserServices {
     constructor(
         private readonly emailServices : EmailService
     ){};
-
+    
     async create(userData : UserCreateUserDto) {
         const user = new User();
 
         user.email =  userData.email.toLowerCase().trim();
         user.name =  userData.name.toLowerCase().trim();
-        user.password = bcryptAdapter.hash(userData.password);
+        user.password =userData.password;
 
         if(user.role) {
             user.role = userData.role.toUpperCase().trim();
@@ -48,6 +48,38 @@ export class UserServices {
             .catch(error => {
                     return Promise.reject(error);
             });
+    };
+
+    async loginUser(loginData:UserLoginDto) {
+
+        const user  =  await User.findOne({
+            where :  {
+                email : loginData.email,
+                status : Status.ACTIVE,
+                emailValidate  : true,
+            }
+        })  
+        if(!user) throw CustomError.unAuthorized("Invalid credentials11");
+
+
+            const isMatching =  bcryptAdapter.compare(loginData.password, user.password);
+          
+            
+            if( !isMatching ) throw CustomError.unAuthorized("Invalid credentials password");
+            
+            const token = await JwtAdapter.generateToken({ id: user.id });
+            if( !token ) throw CustomError.internalServer('Error while creating JWT');
+
+            return {
+                token :  token,
+                user :{
+                    id :  user.id,
+                    name :  user.name,
+                    email :  user.email,
+                    role : user.role
+                }
+        };
+        
     };
 
     public sendEmailValdationLink = async (email:string)=>{
@@ -118,19 +150,19 @@ export class UserServices {
             });
     };
 
-    async findUserById (id:number){
+    async findUserById (id:number){    
         const user =  await User.findOne({
             where :{
                 id, 
                 status :  Status.ACTIVE
             }
-             
-        })
+        });
 
-        if(!id){
-           throw Error(`videogame with id ${id} not found`)
-        }
-       return user
+        if (!user) {
+            throw CustomError.notFound(`User with id ${id} not found`);
+        };
+
+        return user;
     };
 
     async updateUserById (id:number, userData:UserUpdateDto) {
