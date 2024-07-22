@@ -25,12 +25,12 @@ export class UsersRoutes {
         
         // Validate Login
         router.get("/validate-email/:token", controller.validateEmail);
+        router.post("/", controller.createUser);
         
         router.use(AuthMiddleware.protect)
         
         router.get("/", controller.getAllUsers);
         router.get("/:id", controller.getUserById);
-        router.post("/", controller.createUser);
         router.patch("/:id", controller.updateUserById);
         router.delete("/:id", controller.deleteUserById);
 

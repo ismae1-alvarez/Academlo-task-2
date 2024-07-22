@@ -1,5 +1,6 @@
-import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { bcryptAdapter } from "../../../config";
+import { Repairs } from "./repairs.model";
 
 
 
@@ -16,11 +17,6 @@ enum Role {
 
 @Entity()
 export class User extends BaseEntity {
-
-    // constructor(password?:string){
-    //     super();
-    //     this.password? =  password
-    // };
 
     @PrimaryGeneratedColumn()
     id :  number;
@@ -61,6 +57,8 @@ export class User extends BaseEntity {
     })
     status : Status;
 
+    @OneToMany(()=> Repairs, (repairs)=> repairs.user)
+    repairs : Repairs[]
 
     @CreateDateColumn()
     create_at : Date;

@@ -16,10 +16,9 @@ export class RepairsServices {
 
     async create(repairsData:RepairsCreateDto){
         const repairs = new Repairs();
-         await this.userServices.findUserById(repairsData.user_id);
+        await this.userServices.findUserById(repairsData.user_id);
         
 
-        repairs.user_id =  repairsData.user_id;
         repairs.date =  repairsData.date;
         repairs.description =  repairsData.description;
         repairs.motor_number =  repairsData.motor_number;
@@ -42,9 +41,14 @@ export class RepairsServices {
 
     async getAllRepairs(){
         return await Repairs.find({
-            where : {
-                status : Status.PENDING
-            }
+            where : [
+                {
+                    status : Status.PENDING
+                }, 
+                {
+                    status : Status.COMPLETED
+                }
+            ]
         })
             .then(repair => repair)
             .catch( (erro : unknown)=>  Promise.reject(erro));
