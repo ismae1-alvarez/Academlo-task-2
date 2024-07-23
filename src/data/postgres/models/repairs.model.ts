@@ -11,6 +11,9 @@ enum Status {
 export class Repairs extends BaseEntity {
     @PrimaryGeneratedColumn()
     id :  number;
+    
+    @Column()
+    user_id : number;
 
     @Column({
         type : "varchar",

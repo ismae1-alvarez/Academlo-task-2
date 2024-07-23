@@ -1,4 +1,4 @@
-import { Repairs } from "../../data";
+import { Repairs, User } from "../../data";
 import { CustomError, RepairsCreateDto, RepairsUpadateDto } from "../../domain";
 import { UserServices } from "../users/users.services";
 
@@ -17,8 +17,11 @@ export class RepairsServices {
     async create(repairsData:RepairsCreateDto){
         const repairs = new Repairs();
         await this.userServices.findUserById(repairsData.user_id);
-        
 
+
+       
+
+        repairs.user_id =  repairsData.user_id;
         repairs.date =  repairsData.date;
         repairs.description =  repairsData.description;
         repairs.motor_number =  repairsData.motor_number;
